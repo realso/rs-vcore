@@ -1,20 +1,18 @@
 import { DataTable } from "./DataTable";
+
 const Constants = {
-        "F_INITDATA": "initData",
-        "F_BATCHINITDATA": "batchInitData",
-        "F_SETVALUE": "setValue",
-        "F_SETPARAMS": "setParams",
-        "MAINPATH": "MAINPATH",
-        "SUBPATH": "SUBPATH",
-        "P_XULID": "XULID",
-        "P_OPRTFLOWID": "OPRTFLOWID",
-        "P_AUTOCHECK": "AUTOCHECK",
-        "STORE_NAME": "STORE_NAME",
-        "DT": "dt"
-    }
-    /////
-    //业务处理对象
-    /////
+    "F_INITDATA": "initData",
+    "F_BATCHINITDATA": "batchInitData",
+    "F_SETVALUE": "setValue",
+    "F_SETPARAMS": "setParams",
+    "MAINPATH": "MAINPATH",
+    "SUBPATH": "SUBPATH",
+    "P_XULID": "XULID",
+    "P_OPRTFLOWID": "OPRTFLOWID",
+    "P_AUTOCHECK": "AUTOCHECK",
+    "STORE_NAME": "STORE_NAME",
+    "DT": "dt"
+}
 class Store01 {
     constructor(config) {
         this.name = config.STORE_NAME;
@@ -81,7 +79,6 @@ class Store01 {
             dt
         }
     }
-
     mixActions() {
         return {
             add() {},
@@ -154,3 +151,4 @@ class Store01 {
         }
     }
 }
+export { Store01 };

@@ -65,29 +65,42 @@ class DataTable {
         return this.data;
     }
 
-    getValue(field, idx) {
+    getValue(field, idxOrItem) {
+        console.log("getValue:" + field);
+        console.log(idxOrItem);
         let ret = "";
-        idx = idx || 0;
-        if (idx > this.data.length) {
-            throw new Error("DataTable.getValue idx太长了");
+        let idx = idxOrItem || 0;
+        let item = idxOrItem || {};
+        if (typeof(idxOrItem) != "object") {
+            if (idx > this.data.length) {
+                throw new Error("DataTable.getValue idx太长了");
+            }
+            if (this.data.length > 0) {
+                item = this.data[idx];
+            }
         }
-        if (this.data.length > 0) {
-            ret = this.data[idx][field];
-        }
+        ret = item[field];
         return ret;
     }
 
-    setValue(field, value, idx) {
-        let item = {};
-        idx = idx || 0;
-        if (this.data.length == 0) {
-            this.add(item);
+    setValue(field, value, idxOrItem) {
+        console.log("setValue:" + field + "=" + value);
+        console.log(idxOrItem);
+        let idx = idxOrItem || 0;
+        let item = idxOrItem || {};
+        if (typeof(idxOrItem) != "object") {
+            if (this.data.length == 0) {
+                item = {};
+                this.add(item);
+            }
+            if (idx > this.data.length) {
+                throw new Error("DataTable.getValue太长了");
+            } else {
+                item = this.data[idx];
+            }
         }
-        if (idx > this.data.length) {
-            throw new Error("DataTable.getValue太长了");
-        } else {
-            item = this.data[idx];
-        }
+
+
         item[field] = value;
 
         //放入修改记录
@@ -130,7 +143,7 @@ class DataTable {
         return this.data.length;
     }
 
-    bindField(aFields, where, order) {
+    bindField(aFields, itemProp) {
         aFields = aFields || [];
         let ret = {};
         let _this = this;
@@ -145,10 +158,10 @@ class DataTable {
 
             ret[field] = {
                 get() {
-                    return _this.getValue(field.replace(/_/g, '.'));
+                    return _this.getValue(field.replace(/_/g, '.'), itemProp ? this[itemProp] : 0);
                 },
                 set(value) {
-                    _this.setValue(field.replace(/_/g, '.'), value)
+                    _this.setValue(field.replace(/_/g, '.'), value, itemProp ? this[itemProp] : 0)
                 }
             }
         }
