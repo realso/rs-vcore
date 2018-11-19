@@ -1,18 +1,20 @@
 import { DataTable } from "./DataTable";
-
 const Constants = {
-    "F_INITDATA": "initData",
-    "F_BATCHINITDATA": "batchInitData",
-    "F_SETVALUE": "setValue",
-    "F_SETPARAMS": "setParams",
-    "MAINPATH": "MAINPATH",
-    "SUBPATH": "SUBPATH",
-    "P_XULID": "XULID",
-    "P_OPRTFLOWID": "OPRTFLOWID",
-    "P_AUTOCHECK": "AUTOCHECK",
-    "STORE_NAME": "STORE_NAME",
-    "DT": "dt"
-}
+        "F_INITDATA": "initData",
+        "F_BATCHINITDATA": "batchInitData",
+        "F_SETVALUE": "setValue",
+        "F_SETPARAMS": "setParams",
+        "MAINPATH": "MAINPATH",
+        "SUBPATH": "SUBPATH",
+        "P_XULID": "XULID",
+        "P_OPRTFLOWID": "OPRTFLOWID",
+        "P_AUTOCHECK": "AUTOCHECK",
+        "STORE_NAME": "STORE_NAME",
+        "DT": "dt"
+    }
+    /////
+    //业务处理对象
+    /////
 class Store01 {
     constructor(config) {
         this.name = config.STORE_NAME;
@@ -26,6 +28,41 @@ class Store01 {
 
     getTable(state, path) {
         return state[Constants.DT][path];
+    }
+
+    getOpenParam(DID) {
+        let param = {},
+            path = {},
+            p = {};
+        param["path"] = path;
+        param["p"] = p;
+        path["main"] = this.mainPath;
+        path["subs"] = this.subpath;
+        p["DID"] = DID;
+        param["XULID"] = this.XULID;
+        return param;
+    }
+
+    getSaveParam(state) {
+        let param = {},
+            path = {},
+            p = {};
+        param["path"] = path;
+        param["p"] = p;
+        let main = this.mainPath,
+            subs = this.subpath
+        path["main"] = main;
+        path["subs"] = subs;
+        Object.keys(this.mainPath).forEach(path => {
+            p[path] = this.getTable(state, path).getXML();
+        })
+        Object.keys(this.subpath).forEach(path => {
+            dt[path] = this.getTable(state, path).getXML();
+        })
+        param[Constants.P_XULID] = this.XULID;
+        param[Constants.P_OPRTFLOWID] = this.OPRTFLOWID;
+        param[Constants.P_AUTOCHECK] = this.AUTOCHECK;
+        return param;
     }
 
     mixState() {
@@ -44,6 +81,7 @@ class Store01 {
             dt
         }
     }
+
     mixActions() {
         return {
             add() {},
@@ -91,42 +129,6 @@ class Store01 {
                 commit(Constants.F_BATCHINITDATA, { data });
             }
         }
-    }
-
-
-    getOpenParam(DID) {
-        let param = {},
-            path = {},
-            p = {};
-        param["path"] = path;
-        param["p"] = p;
-        path["main"] = this.mainPath;
-        path["subs"] = this.subpath;
-        p["DID"] = DID;
-        param["XULID"] = this.XULID;
-        return param;
-    }
-
-    getSaveParam(state) {
-        let param = {},
-            path = {},
-            p = {};
-        param["path"] = path;
-        param["p"] = p;
-        let main = this.mainPath,
-            subs = this.subpath
-        path["main"] = main;
-        path["subs"] = subs;
-        Object.keys(this.mainPath).forEach(path => {
-            p[path] = this.getTable(state, path).getXML();
-        })
-        Object.keys(this.subpath).forEach(path => {
-            dt[path] = this.getTable(state, path).getXML();
-        })
-        param[Constants.P_XULID] = this.XULID;
-        param[Constants.P_OPRTFLOWID] = this.OPRTFLOWID;
-        param[Constants.P_AUTOCHECK] = this.AUTOCHECK;
-        return param;
     }
 
     mixMutations() {

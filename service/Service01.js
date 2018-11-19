@@ -58,4 +58,4 @@ const doReInvalid = async function(param) {
     return doCall(param);
 }
 
-export { doAdd, doDelete, doOpen, doSave, doSaveSubmit, doReSubmit, doCheck, doReCheck, doInvalid, doReInvalid }
+export default { setDB, doAdd, doDelete, doOpen, doSave, doSaveSubmit, doReSubmit, doCheck, doReCheck, doInvalid, doReInvalid }

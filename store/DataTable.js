@@ -59,7 +59,11 @@ class DataTable {
         this._changeInfo._rawData = this._changeInfo._rawData.concat(data);
     }
 
-    getData() {}
+    getData(where, order) {
+        where = where || "";
+        order = order || "";
+        return this.data;
+    }
 
     getValue(field, idx) {
         let ret = "";
@@ -188,12 +192,6 @@ class DataTable {
         })
         fieldAll = Array.from(new Set(fieldAll));
         return fieldAll;
-    }
-
-    getData(where, order) {
-        where = where || "";
-        order = order || "";
-        return this.data;
     }
 
     getXML() {
