@@ -37,7 +37,7 @@ class Store01 {
         }
         if (this.subpath) {
             Object.keys(this.subpath).forEach(path => {
-                dt[path] = new DataTable(path, this.mainPath[path]);
+                dt[path] = new DataTable(path, this.subpath[path]);
             })
         }
         return {
@@ -47,47 +47,47 @@ class Store01 {
     mixActions() {
         return {
             add() {},
-            save() {
-                const ret = await service.doSave(this.getSaveParam(state));
-                const data = ret.data || {};
+            async save() {
+                const ret = service.doSave(this.getSaveParam(state));
+                const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
-            open({ commit }, DID) {
+            async open({ commit }, DID) {
                 const ret = await service.doOpen(this.getOpenParam(DID));
-                const data = ret.data || {};
+                const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
-            delete() {
+            async delete() {
                 await service.doDelete(this.getSaveParam());
             },
-            saveSubmit({ commit }) {
+            async saveSubmit({ commit }) {
                 const ret = await service.doDelete(this.getSaveParam(state));
-                const data = ret.data || {};
+                const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
-            reSubmit({ commit }) {
+            async reSubmit({ commit }) {
                 const ret = await service.doDelete(this.getSaveParam(state));
-                const data = ret.data || {};
+                const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
-            check({ commit }) {
+            async check({ commit }) {
                 const ret = await service.doCheck(this.getSaveParam(state));
-                const data = ret.data || {};
+                const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
-            reCheck({ commit }) {
+            async reCheck({ commit }) {
                 const ret = await service.doReInvalid(this.getSaveParam(state));
-                const data = ret.data || {};
+                const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
-            invalid({ commit }) {
+            async invalid({ commit }) {
                 const ret = await service.doInvalid(this.getSaveParam(state));
-                const data = ret.data || {};
+                const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
-            reInvalid({ commit }) {
+            async reInvalid({ commit }) {
                 const ret = await service.doReInvalid(this.getSaveParam(state));
-                const data = ret.data || {};
+                const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             }
         }
@@ -143,7 +143,7 @@ class Store01 {
             [Constants.F_BATCHINITDATA]: function(state, { data }) {
                 Object.keys(data).forEach(key => {
                     if (getTable(state, key)) {
-                        getTable(state, key).initData(data[key]);
+                        getTable(state, key).initData(data[key].items);
                     } else {
                         state[key] = data[key];
                     }

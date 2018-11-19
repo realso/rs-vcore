@@ -59,6 +59,8 @@ class DataTable {
         this._changeInfo._rawData = this._changeInfo._rawData.concat(data);
     }
 
+    getData() {}
+
     getValue(field, idx) {
         let ret = "";
         idx = idx || 0;
@@ -139,10 +141,10 @@ class DataTable {
 
             ret[field] = {
                 get() {
-                    return _this.getValue(field);
+                    return _this.getValue(field.replace(/_/g, '.'));
                 },
                 set(value) {
-                    _this.setValue(field, value)
+                    _this.setValue(field.replace(/_/g, '.'), value)
                 }
             }
         }
@@ -256,7 +258,7 @@ class DataTable {
     }
 
     isModify() {
-        return (Object.keys(this._changeInfo._modifyIdxRows) + Object.keys(this._changeInfo._addIdxRows) + Object.keys(this._changeInfo._deleteIdxRows)) > 0;
+        return (Object.keys(this._changeInfo._modifyIdxRows).length + Object.keys(this._changeInfo._addIdxRows).length + Object.keys(this._changeInfo._deleteIdxRows).length) > 0;
     }
 }
 export {
