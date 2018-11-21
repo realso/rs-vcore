@@ -13,6 +13,7 @@ const Constants = {
     "STORE_NAME": "STORE_NAME",
     "DT": "dt"
 }
+
 class Store01 {
     constructor(config) {
         this.name = config.STORE_NAME;
@@ -79,6 +80,7 @@ class Store01 {
             dt
         }
     }
+
     mixActions() {
         return {
             add() {},
