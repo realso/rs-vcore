@@ -4,29 +4,45 @@ const Constants = {
     "F_INITDATA": "initData",
     "F_BATCHINITDATA": "batchInitData",
     "F_SETVALUE": "setValue",
+    "F_DELETE": "del",
+    "F_ADD": "add",
+    "F_SETENTRYNUM": "setEntryNum",
     "F_SETPARAMS": "setParams",
     "MAINPATH": "MAINPATH",
     "SUBPATH": "SUBPATH",
     "P_XULID": "XULID",
     "P_OPRTFLOWID": "OPRTFLOWID",
     "P_AUTOCHECK": "AUTOCHECK",
+    "P_ENTRYNUM": "ENTRYNUM",
     "STORE_NAME": "STORE_NAME",
     "DT": "dt"
 }
 
 class Store01 {
     constructor(config) {
+        //store名称
         this.name = config.STORE_NAME;
-        this.mainPath = config.MAINPATH;
-        this.subpath = config.SUBPATH;
+        //数据集合
+        this.dt = {};
+        //数据源
+        //{MAIN:"",DTS:""},
+        this.paths = config.paths;
+        this.service = config.service;
+        //MAIN
+        this.mainPath = config.MAINPATH || "";
+        //["DTS1","DTS2"]
+        this.subPath = config.SUBPATH || [];
+        //["DTS3","DTS4"]
+        this.extPath = config.EXTPATH || [];
+
+        //放在这感觉很鸡肋
         this.XULID = config.XULID;
         this.OPRTFLOWID = config.OPRTFLOWID;
         this.AUTOCHECK = config.AUTOCHECK;
-        this.service = config.service;
     }
 
-    getTable(state, path) {
-        return state[Constants.DT][path];
+    getTable(path) {
+        return this[Constants.DT][path];
     }
 
     getOpenParam(DID) {
@@ -35,28 +51,32 @@ class Store01 {
             p = {};
         param["path"] = path;
         param["p"] = p;
-        path["main"] = this.mainPath;
-        path["subs"] = this.subpath;
+        path["main"] = {
+            [this.mainPath]: this.paths[this.mainPath]
+        };
+        path["subs"] = this.paths.filter(v => { return this.subPath.contains(v) });
         p["DID"] = DID;
         param["XULID"] = this.XULID;
         return param;
     }
 
-    getSaveParam(state) {
+    getSaveParam() {
         let param = {},
             path = {},
             p = {};
         param["path"] = path;
         param["p"] = p;
-        let main = this.mainPath,
-            subs = this.subpath
+        let main = {
+                [this.mainPath]: this.paths[this.mainPath]
+            },
+            subs = this.paths.filter(v => { return this.subPath.contains(v) });
         path["main"] = main;
         path["subs"] = subs;
         Object.keys(this.mainPath).forEach(path => {
-            p[path] = this.getTable(state, path).getXML();
+            p[path] = this.getTable(path).getXML();
         })
-        Object.keys(this.subpath).forEach(path => {
-            dt[path] = this.getTable(state, path).getXML();
+        Object.keys(this.subPath).forEach(path => {
+            dt[path] = this.getTable(path).getXML();
         })
         param[Constants.P_XULID] = this.XULID;
         param[Constants.P_OPRTFLOWID] = this.OPRTFLOWID;
@@ -66,16 +86,12 @@ class Store01 {
 
     mixState() {
         let dt = {};
-        if (this.mainPath) {
-            Object.keys(this.mainPath).forEach(path => {
-                dt[path] = new DataTable(path, this.mainPath[path]);
+        if (this.paths) {
+            Object.keys(this.paths).forEach(path => {
+                dt[path] = new DataTable(path, this.paths[path]);
             })
         }
-        if (this.subpath) {
-            Object.keys(this.subpath).forEach(path => {
-                dt[path] = new DataTable(path, this.subpath[path]);
-            })
-        }
+        this.dt = dt;
         return {
             dt
         }
@@ -85,7 +101,7 @@ class Store01 {
         return {
             add() {},
             async save() {
-                const ret = service.doSave(this.getSaveParam(state));
+                const ret = service.doSave(this.getSaveParam());
                 const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
@@ -98,32 +114,32 @@ class Store01 {
                 await service.doDelete(this.getSaveParam());
             },
             async saveSubmit({ commit }) {
-                const ret = await service.doDelete(this.getSaveParam(state));
+                const ret = await service.doDelete(this.getSaveParam());
                 const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async reSubmit({ commit }) {
-                const ret = await service.doDelete(this.getSaveParam(state));
+                const ret = await service.doDelete(this.getSaveParam());
                 const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async check({ commit }) {
-                const ret = await service.doCheck(this.getSaveParam(state));
+                const ret = await service.doCheck(this.getSaveParam());
                 const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async reCheck({ commit }) {
-                const ret = await service.doReInvalid(this.getSaveParam(state));
+                const ret = await service.doReInvalid(this.getSaveParam());
                 const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async invalid({ commit }) {
-                const ret = await service.doInvalid(this.getSaveParam(state));
+                const ret = await service.doInvalid(this.getSaveParam());
                 const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async reInvalid({ commit }) {
-                const ret = await service.doReInvalid(this.getSaveParam(state));
+                const ret = await service.doReInvalid(this.getSaveParam());
                 const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
             }
@@ -131,26 +147,63 @@ class Store01 {
     }
 
     mixMutations() {
+        let _this = this;
         return {
             [Constants.F_INITDATA]: function(state, { path, data }) {
-                state.dt[path].initData(data);
+                state[Constants.DT][path].initData(data);
             },
             [Constants.F_SETVALUE]: function(state, { path, field, value, idx }) {
-                state.dt[path].setValue(field, value, idx);
+                state[Constants.DT][path].setValue(field, value, idx);
+            },
+            [Constants.F_ADD]: function(state, { path, item }) {
+                let dt = state[Constants.DT][path];
+                dt.add(item);
+                item[Constants.P_ENTRYNUM] = dt.count();
+            },
+            [Constants.F_DELETE]: function(state, { path, idx }) {
+                state[Constants.DT][path].del(idx);
             },
             [Constants.F_SETPARAMS]: function(state, params) {
                 state.params = params;
             },
+            [Constants.F_SETENTRYNUM]: function(state, { path }) {
+                let dt = state[Constants.DT][path];
+                dt.data.forEach((v, index) => {
+                    dt.setValue(v, Constants.P_ENTRYNUM, (index + 1), index);
+                })
+            },
             [Constants.F_BATCHINITDATA]: function(state, { data }) {
                 Object.keys(data).forEach(key => {
-                    if (getTable(state, key)) {
-                        getTable(state, key).initData(data[key].items);
+                    if (_this.getTable(key)) {
+                        _this.getTable(key).initData(data[key].items);
                     } else {
                         state[key] = data[key];
                     }
                 });
             }
         }
+    }
+
+    mapGetters(path, aFields, itemProp) {
+        let dt = this.dt[path];
+        aFields = aFields || [];
+        dt.bindField(aFields);
+        let ret = {};
+        for (let i = 0, field; i < aFields.length; i++) {
+            field = aFields[i];
+            ret[field] = {
+                get() {
+                    return dt.getValue(field.replace(/_/g, '.'), itemProp ? this[itemProp] : 0);
+                },
+                set(value) {
+                    dt.setValue(field.replace(/_/g, '.'), value, itemProp ? this[itemProp] : 0)
+                }
+            }
+        }
+        ret[path] = function() {
+            return dt.data;
+        };
+        return ret;
     }
 }
 export { Store01 };

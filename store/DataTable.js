@@ -143,10 +143,8 @@ class DataTable {
         return this.data.length;
     }
 
-    bindField(aFields, itemProp) {
+    bindField(aFields) {
         aFields = aFields || [];
-        let ret = {};
-        let _this = this;
         for (let i = 0, field; i < aFields.length; i++) {
             field = aFields[i];
             let v = this.dataObj[field];
@@ -155,20 +153,7 @@ class DataTable {
                 robj[field] = "";
                 this.dataObj = Object.assign({}, this.dataObj, robj)
             }
-
-            ret[field] = {
-                get() {
-                    return _this.getValue(field.replace(/_/g, '.'), itemProp ? this[itemProp] : 0);
-                },
-                set(value) {
-                    _this.setValue(field.replace(/_/g, '.'), value, itemProp ? this[itemProp] : 0)
-                }
-            }
         }
-        ret[this.path] = function() {
-            return _this.data;
-        };
-        return ret;
     }
 
     /**
