@@ -100,7 +100,7 @@ class Store01 {
     mixActions() {
         return {
             add() {},
-            async save() {
+            async save({ commit }) {
                 const ret = service.doSave(this.getSaveParam());
                 const data = (ret.data || {}).items;
                 commit(Constants.F_BATCHINITDATA, { data });
