@@ -1,13 +1,12 @@
 import { DataTable } from "./DataTable";
 
 const Constants = {
-    "F_INITDATA": "initData",
-    "F_BATCHINITDATA": "batchInitData",
-    "F_SETVALUE": "setValue",
-    "F_DELETE": "del",
-    "F_ADD": "add",
-    "F_SETENTRYNUM": "setEntryNum",
-    "F_SETPARAMS": "setParams",
+    "M_INITDATA": "initData",
+    "M_INITBYPATH": "initByPath",
+    "M_BATCHSETDATA": "batchSetData",
+    "M_SETVALUE": "setValue",
+    "M_SETENTRYNUM": "setEntryNum",
+    "M_SETPARAMS": "setParams",
     "MAINPATH": "MAINPATH",
     "SUBPATH": "SUBPATH",
     "P_XULID": "XULID",
@@ -48,13 +47,15 @@ class Store01 {
     getOpenParam(DID) {
         let param = {},
             path = {},
+            subs = {},
             p = {};
         param["path"] = path;
         param["p"] = p;
         path["main"] = {
             [this.mainPath]: this.paths[this.mainPath]
         };
-        path["subs"] = this.paths.filter(v => { return this.subPath.contains(v) });
+        path["subs"] = subs;
+        this.subPath.map(v => { subs[v] = this.paths[v] });
         p["DID"] = DID;
         param["XULID"] = this.XULID;
         return param;
@@ -63,20 +64,18 @@ class Store01 {
     getSaveParam() {
         let param = {},
             path = {},
+            subs = {},
             p = {};
         param["path"] = path;
         param["p"] = p;
-        let main = {
-                [this.mainPath]: this.paths[this.mainPath]
-            },
-            subs = this.paths.filter(v => { return this.subPath.contains(v) });
-        path["main"] = main;
+        path["main"] = {
+            [this.mainPath]: this.paths[this.mainPath]
+        };
         path["subs"] = subs;
-        Object.keys(this.mainPath).forEach(path => {
+        this.subPath.map(v => { subs[v] = this.paths[v] });
+        p[this.mainPath] = this.getTable(this.mainPath).getXML();
+        this.subPath.forEach(path => {
             p[path] = this.getTable(path).getXML();
-        })
-        Object.keys(this.subPath).forEach(path => {
-            dt[path] = this.getTable(path).getXML();
         })
         param[Constants.P_XULID] = this.XULID;
         param[Constants.P_OPRTFLOWID] = this.OPRTFLOWID;
@@ -98,50 +97,57 @@ class Store01 {
     }
 
     mixActions() {
+        let _this = this;
         return {
-            add() {},
-            async save() {
-                const ret = service.doSave(this.getSaveParam());
+            async add({ commit }) {
+                let paths = Object.keys(_this.paths);
+                commit(Constants.M_INITBYPATH, { paths });
+                const ret = await _this.service.doAdd(_this.getSaveParam());
                 const data = (ret.data || {});
-                commit(Constants.F_BATCHINITDATA, { data });
+                commit(Constants.M_BATCHSETDATA, { data });
+            },
+            async save({ commit }) {
+                const ret = await _this.service.doSave(_this.getSaveParam());
+                const data = (ret.data || {});
+                commit(Constants.M_BATCHSETDATA, { data });
             },
             async open({ commit }, DID) {
-                const ret = await service.doOpen(this.getOpenParam(DID));
+                const ret = await _this.service.doOpen(_this.getOpenParam(DID));
                 const data = (ret.data || {});
-                commit(Constants.F_BATCHINITDATA, { data });
+                commit(Constants.M_BATCHSETDATA, { data });
             },
             async delete() {
-                await service.doDelete(this.getSaveParam());
+                await service.doDelete(_this.getSaveParam());
             },
             async saveSubmit({ commit }) {
-                const ret = await service.doDelete(this.getSaveParam());
+                const ret = await _this.service.doDelete(_this.getSaveParam());
                 const data = (ret.data || {});
-                commit(Constants.F_BATCHINITDATA, { data });
+                commit(Constants.M_BATCHSETDATA, { data });
             },
             async reSubmit({ commit }) {
-                const ret = await service.doDelete(this.getSaveParam());
+                const ret = await _this.service.doDelete(_this.getSaveParam());
                 const data = (ret.data || {});
-                commit(Constants.F_BATCHINITDATA, { data });
+                commit(Constants.M_BATCHSETDATA, { data });
             },
             async check({ commit }) {
-                const ret = await service.doCheck(this.getSaveParam());
+                const ret = await _this.service.doCheck(_this.getSaveParam());
                 const data = (ret.data || {});
-                commit(Constants.F_BATCHINITDATA, { data });
+                commit(Constants.M_BATCHSETDATA, { data });
             },
             async reCheck({ commit }) {
-                const ret = await service.doReInvalid(this.getSaveParam());
+                const ret = await _this.service.doReInvalid(_this.getSaveParam());
                 const data = (ret.data || {});
-                commit(Constants.F_BATCHINITDATA, { data });
+                commit(Constants.M_BATCHSETDATA, { data });
             },
             async invalid({ commit }) {
-                const ret = await service.doInvalid(this.getSaveParam());
+                const ret = await _this.service.doInvalid(_this.getSaveParam());
                 const data = (ret.data || {});
-                commit(Constants.F_BATCHINITDATA, { data });
+                commit(Constants.M_BATCHSETDATA, { data });
             },
             async reInvalid({ commit }) {
-                const ret = await service.doReInvalid(this.getSaveParam());
+                const ret = await _this.service.doReInvalid(_this.getSaveParam());
                 const data = (ret.data || {});
-                commit(Constants.F_BATCHINITDATA, { data });
+                commit(Constants.M_BATCHSETDATA, { data });
             }
         }
     }
@@ -149,33 +155,32 @@ class Store01 {
     mixMutations() {
         let _this = this;
         return {
-            [Constants.F_INITDATA]: function(state, { path, data }) {
+            [Constants.M_INITDATA]: function(state, { path, data }) {
                 state[Constants.DT][path].initData(data);
             },
-            [Constants.F_SETVALUE]: function(state, { path, field, value, idx }) {
+            [Constants.M_SETVALUE]: function(state, { path, field, value, idx }) {
                 state[Constants.DT][path].setValue(field, value, idx);
             },
-            [Constants.F_ADD]: function(state, { path, item }) {
-                let dt = state[Constants.DT][path];
-                dt.add(item);
-                item[Constants.P_ENTRYNUM] = dt.count();
-            },
-            [Constants.F_DELETE]: function(state, { path, idx }) {
-                state[Constants.DT][path].del(idx);
-            },
-            [Constants.F_SETPARAMS]: function(state, params) {
+            [Constants.M_SETPARAMS]: function(state, params) {
                 state.params = params;
             },
-            [Constants.F_SETENTRYNUM]: function(state, { path }) {
+            [Constants.M_SETENTRYNUM]: function(state, { path }) {
                 let dt = state[Constants.DT][path];
                 dt.data.forEach((v, index) => {
                     dt.setValue(v, Constants.P_ENTRYNUM, (index + 1), index);
                 })
             },
-            [Constants.F_BATCHINITDATA]: function(state, { data }) {
+            [Constants.M_INITBYPATH]: function(state, { paths }) {
+                paths.forEach(key => {
+                    if (_this.getTable(key)) {
+                        _this.getTable(key).initData();
+                    }
+                });
+            },
+            [Constants.M_BATCHSETDATA]: function(state, { data }) {
                 Object.keys(data).forEach(key => {
                     if (_this.getTable(key)) {
-                        _this.getTable(key).initData(data[key].items);
+                        _this.getTable(key).setData(data[key].items);
                     } else {
                         state[key] = data[key];
                     }
@@ -206,4 +211,4 @@ class Store01 {
         return ret;
     }
 }
-export { Store01, Constants };
+export { Store01, Constants }
