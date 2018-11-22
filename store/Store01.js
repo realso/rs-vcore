@@ -100,14 +100,14 @@ class Store01 {
     mixActions() {
         return {
             add() {},
-            async save({ commit }) {
+            async save() {
                 const ret = service.doSave(this.getSaveParam());
-                const data = (ret.data || {}).items;
+                const data = (ret.data || {});
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async open({ commit }, DID) {
                 const ret = await service.doOpen(this.getOpenParam(DID));
-                const data = (ret.data || {}).items;
+                const data = (ret.data || {});
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async delete() {
@@ -115,32 +115,32 @@ class Store01 {
             },
             async saveSubmit({ commit }) {
                 const ret = await service.doDelete(this.getSaveParam());
-                const data = (ret.data || {}).items;
+                const data = (ret.data || {});
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async reSubmit({ commit }) {
                 const ret = await service.doDelete(this.getSaveParam());
-                const data = (ret.data || {}).items;
+                const data = (ret.data || {});
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async check({ commit }) {
                 const ret = await service.doCheck(this.getSaveParam());
-                const data = (ret.data || {}).items;
+                const data = (ret.data || {});
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async reCheck({ commit }) {
                 const ret = await service.doReInvalid(this.getSaveParam());
-                const data = (ret.data || {}).items;
+                const data = (ret.data || {});
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async invalid({ commit }) {
                 const ret = await service.doInvalid(this.getSaveParam());
-                const data = (ret.data || {}).items;
+                const data = (ret.data || {});
                 commit(Constants.F_BATCHINITDATA, { data });
             },
             async reInvalid({ commit }) {
                 const ret = await service.doReInvalid(this.getSaveParam());
-                const data = (ret.data || {}).items;
+                const data = (ret.data || {});
                 commit(Constants.F_BATCHINITDATA, { data });
             }
         }
