@@ -206,4 +206,4 @@ class Store01 {
         return ret;
     }
 }
-export { Store01 };
+export { Store01, Constants };
