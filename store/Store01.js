@@ -96,6 +96,10 @@ class Store01 {
         }
     }
 
+    mixGetters() {
+
+    }
+
     mixActions() {
         let _this = this;
         return {

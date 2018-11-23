@@ -2,7 +2,7 @@ export const execFormula = function(field, getFormula, getValue) {
     var vv = getFormula(field);
     var avv = vv.split(/\+|-|\*|\/|\(|\)/);
     if (!vv) {
-        vv = getValue(vv);
+        vv = getValue(field);
     } else {
         for (var i = 0, v; i < avv.length; i++) {
             v = avv[i];
