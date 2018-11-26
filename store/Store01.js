@@ -103,10 +103,10 @@ class Store01 {
     mixActions() {
         let _this = this;
         return {
-            async add({ commit }) {
+            async add({ commit }, param) {
                 let paths = Object.keys(_this.paths);
                 commit(Constants.M_INITBYPATH, { paths });
-                const ret = await _this.service.doAdd(_this.getSaveParam());
+                const ret = await _this.service.doAdd(param);
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
             },

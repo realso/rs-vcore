@@ -7,7 +7,7 @@ export const execFormula = function(field, getFormula, getValue) {
         for (var i = 0, v; i < avv.length; i++) {
             v = avv[i];
             if (parseFloat(v) != v) {
-                vv = vv.replace(v, execFormula(v, Formula, getValue));
+                vv = vv.replace(v, execFormula(v, getFormula, getValue));
             }
         }
     }
