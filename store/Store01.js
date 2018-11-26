@@ -7,12 +7,16 @@ const Constants = {
     "M_SETVALUE": "setValue",
     "M_SETENTRYNUM": "setEntryNum",
     "M_SETPARAMS": "setParams",
+    "M_SETSTATE": "setState",
     "MAINPATH": "MAINPATH",
     "SUBPATH": "SUBPATH",
     "P_XULID": "XULID",
     "P_OPRTFLOWID": "OPRTFLOWID",
     "P_AUTOCHECK": "AUTOCHECK",
     "P_ENTRYNUM": "ENTRYNUM",
+    "P_EMPFIELD": "MKEMPID",
+    "P_MAKEFIELD": "MAKERID",
+    "P_STATECODE": "STATE.PARACODE",
     "STORE_NAME": "STORE_NAME",
     "DT": "dt"
 }
@@ -38,6 +42,8 @@ class Store01 {
         this.XULID = config.XULID;
         this.OPRTFLOWID = config.OPRTFLOWID;
         this.AUTOCHECK = config.AUTOCHECK;
+        this.EMPFIELD = config.EMPFIELD || Constants.P_EMPFIELD;
+        this.MAKEFIELD = config.MAKEFIELD || Constants.P_MAKEFIELD;
     }
 
     getTable(path) {
@@ -92,13 +98,11 @@ class Store01 {
         }
         this.dt = dt;
         return {
-            dt
+            dt,
+            STATE: "Null"
         }
     }
 
-    mixGetters() {
-
-    }
 
     mixActions() {
         let _this = this;
@@ -109,49 +113,59 @@ class Store01 {
                 const ret = await _this.service.doAdd(param);
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
+                commit(Constants.M_SETSTATE);
             },
             async save({ commit }) {
                 const ret = await _this.service.doSave(_this.getSaveParam());
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
+                commit(Constants.M_SETSTATE);
             },
             async open({ commit }, DID) {
                 const ret = await _this.service.doOpen(_this.getOpenParam(DID));
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
+                commit(Constants.M_SETSTATE);
             },
             async delete() {
                 await service.doDelete(_this.getSaveParam());
+                commit(Constants.M_SETSTATE);
             },
             async saveSubmit({ commit }) {
                 const ret = await _this.service.doDelete(_this.getSaveParam());
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
+                commit(Constants.M_SETSTATE);
             },
             async reSubmit({ commit }) {
                 const ret = await _this.service.doDelete(_this.getSaveParam());
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
+                commit(Constants.M_SETSTATE);
             },
             async check({ commit }) {
                 const ret = await _this.service.doCheck(_this.getSaveParam());
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
+                commit(Constants.M_SETSTATE);
             },
             async reCheck({ commit }) {
                 const ret = await _this.service.doReInvalid(_this.getSaveParam());
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
+                commit(Constants.M_SETSTATE);
             },
             async invalid({ commit }) {
                 const ret = await _this.service.doInvalid(_this.getSaveParam());
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
+                commit(Constants.M_SETSTATE);
             },
             async reInvalid({ commit }) {
                 const ret = await _this.service.doReInvalid(_this.getSaveParam());
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
+                commit(Constants.M_SETSTATE);
             }
         }
     }
@@ -189,6 +203,23 @@ class Store01 {
                         state[key] = data[key];
                     }
                 });
+            },
+            [Constants.M_SETSTATE]: function(state, STATE) {
+                let MAIN = _this.getTable(_this.mainPath);
+                STATE = STATE || MAIN.getValue("STATE.PARACODE") || (MAIN.isAdd() ? "Add" : "");
+                if ("Add" != STATE) {
+                    if (STATE) {
+                        state.STATE = STATE;
+                    } else {
+                        state.STATE = "Null";
+                    }
+                    //处理notme
+                    if (!(this.getters.userInfo.EMPID == MAIN.getValue(_this.EMPFIELD) || this.getters.userInfo.UID == MAIN.getValue(_this.MAKEFIELD))) {
+                        state.STATE = "NotMe";
+                    }
+                } else {
+                    state.STATE = STATE;
+                }
             }
         }
     }

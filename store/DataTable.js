@@ -86,6 +86,9 @@ class DataTable {
     setValue(field, value, idxOrItem) {
         console.log("setValue:" + field + "=" + value);
         console.log(idxOrItem);
+        if (typeof(value) == "undefined") {
+            value = "";
+        }
         let idx = idxOrItem || 0;
         let item = idxOrItem || {};
         if (typeof(idxOrItem) != "object") {
@@ -279,6 +282,10 @@ class DataTable {
 
     isModify() {
         return (Object.keys(this._changeInfo._modifyIdxRows).length + Object.keys(this._changeInfo._addIdxRows).length + Object.keys(this._changeInfo._deleteIdxRows).length) > 0;
+    }
+
+    isAdd() {
+        return Object.keys(this._changeInfo._addIdxRows).length > 0
     }
 }
 export {
