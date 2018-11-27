@@ -6,7 +6,13 @@ export const setDB = function(tdb) {
 
 export const doCall = async function(param) {
     const api = { "namespace": "GJ.EBZ.P00", "class": "CM01", "method": "onAction", params: [param] };
-    return db.call(api);
+    return db.call(api).then((ret) => {
+        if (ret.data.ERRCODE) {
+            return new Promise(function(resolve, reject) {
+                reject(new Error(ret.data.ERRMESSAGE));
+            })
+        }
+    });
 }
 export const doAdd = async function(param) {
     param["TP"] = "add";
