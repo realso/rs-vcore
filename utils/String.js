@@ -17,3 +17,11 @@ export const execFormula = function(field, getFormula, getValue) {
         throw new Error("公式：" + getFormula(field) + ":" + vv + "错误！");
     }
 }
+
+export const isNull = function(value) {
+    return (!value && value != "0")
+}
+
+export const isNumber = function(value) {
+    return parseFloat(value) == value;
+}
