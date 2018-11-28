@@ -1,6 +1,6 @@
 {
     "name": "rs-vcore",
-    "version": "0.0.20",
+    "version": "0.0.25",
     "description": "锐速软件核心库",
     "main": "index.js",
     "scripts": {},

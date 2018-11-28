@@ -214,7 +214,7 @@ class Store01 {
                         state.STATE = "Null";
                     }
                     //处理notme
-                    if (!(this.getters.userInfo.EMPID == MAIN.getValue(_this.EMPFIELD) || this.getters.userInfo.UID == MAIN.getValue(_this.MAKEFIELD))) {
+                    if (!(this.getters.userInfo.EMPID == MAIN.getValue(_this.EMPFIELD) || this.getters.userInfo.AUID == MAIN.getValue(_this.MAKEFIELD))) {
                         state.STATE = "NotMe";
                     }
                 } else {

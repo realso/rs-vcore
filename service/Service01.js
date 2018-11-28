@@ -11,6 +11,10 @@ export const doCall = async function(param) {
             return new Promise(function(resolve, reject) {
                 reject(new Error(ret.data.ERRMESSAGE));
             })
+        } else {
+            return new Promise(function(resolve, reject) {
+                resolve(ret);
+            })
         }
     });
 }

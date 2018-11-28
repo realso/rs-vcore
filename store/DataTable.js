@@ -66,8 +66,6 @@ class DataTable {
     }
 
     getValue(field, idxOrItem) {
-        console.log("getValue:" + field);
-        console.log(idxOrItem);
         let ret = "";
         let idx = idxOrItem || 0;
         let item = idxOrItem || {};
@@ -84,11 +82,8 @@ class DataTable {
     }
 
     setValue(field, value, idxOrItem) {
-        console.log("setValue:" + field + "=" + value);
-        console.log(idxOrItem);
-        if (typeof(value) == "undefined") {
-            value = "";
-        }
+
+        value = this._filterValue(value);
         let idx = idxOrItem || 0;
         let item = idxOrItem || {};
         if (typeof(idxOrItem) != "object") {
@@ -146,7 +141,7 @@ class DataTable {
         fields = fields || Object.keys(fields);
         fields.forEach(field => {
             if (titem && Object.keys(titem).includes(field)) {
-                if (titem[field] != value) {
+                if (titem[field] != item[field]) {
                     this._changeInfo._modifyIdxRows[item["_idx_"]] = item;
                 }
             }
@@ -216,7 +211,18 @@ class DataTable {
             fieldAll = fieldAll.concat(Object.keys(item));
         })
         fieldAll = Array.from(new Set(fieldAll));
+        //乱七八糟的字段都要去掉
+        fieldAll = fieldAll.filter((filed) => {
+            return filed.split('.').length < 2 && ["_idx_", "_type_"].indexOf(filed) == -1 // && filed.split('.')[0] != filed.split('.')[1]
+        })
         return fieldAll;
+    }
+
+    _filterValue(value) {
+        if (typeof(value) == "undefined" || (typeof(value) == "number" && isNaN(value)) || value == Infinity) {
+            value = "";
+        }
+        return value;
     }
 
     getXML() {
@@ -231,7 +237,7 @@ class DataTable {
             let item = this._changeInfo._addIdxRows[idx];
             let newitem = "";
             fieldAll.forEach((field, i) => {
-                newitem = newitem + " c" + i + '="' + encodeURIComponent(item[field]) + '"';
+                newitem = newitem + " c" + i + '="' + encodeURIComponent(this._filterValue(item[field])) + '"';
             });
             newitems = newitems + "<r" + newitem + "/>";
         });
@@ -242,7 +248,7 @@ class DataTable {
             let modifyitem = "";
             let titem = this._changeInfo._rawIdxData[idx];
             fieldAll.forEach((field, i) => {
-                modifyitem = modifyitem + " c" + i + '="' + encodeURIComponent(item[field]) + '"' + " oc" + i + '="' + encodeURIComponent(titem[field]) + '"';
+                modifyitem = modifyitem + " c" + i + '="' + encodeURIComponent(this._filterValue(item[field])) + '"' + " oc" + i + '="' + encodeURIComponent(this._filterValue(titem[field])) + '"';
             });
             modifyitems = modifyitems + "<r" + modifyitem + "/>";
         });
@@ -253,7 +259,7 @@ class DataTable {
             let titem = this._changeInfo._rawIdxData[idx];
             if (!this._changeInfo._modifyIdxRows[idx] && !this._changeInfo._deleteIdxRows[idx]) {
                 fieldAll.forEach((field, i) => {
-                    modifyitem = modifyitem + " c" + i + '="' + encodeURIComponent(item[field]) + '"' + " oc" + i + '="' + encodeURIComponent(titem[field]) + '"';
+                    modifyitem = modifyitem + " c" + i + '="' + encodeURIComponent(this._filterValue(item[field])) + '"' + " oc" + i + '="' + encodeURIComponent(this._filterValue(titem[field])) + '"';
                 });
                 modifyitems = modifyitems + "<r" + modifyitem + "/>";
             }
@@ -266,7 +272,7 @@ class DataTable {
             let delitem = "";
             let titem = this._changeInfo._rawIdxData[idx];
             fieldAll.forEach(field => {
-                delitem = delitem + " oc" + i + '="' + encodeURIComponent(titem[field]) + '"';
+                delitem = delitem + " oc" + i + '="' + encodeURIComponent(this._filterValue(titem[field])) + '"';
             });
             delitems = delitems + "<r" + delitem + "/>";
         });
