@@ -132,7 +132,7 @@ class Store01 {
                 commit(Constants.M_BATCHSETDATA, { data });
                 commit(Constants.M_SETSTATE);
             },
-            async delete() {
+            async delete({ commit }) {
                 /*全部在后台处理
                 if ("1" == _this.ISFDEL) {
                     _this.getTable(_this.mainPath).setValue(_this.DELFIELD, 1);
@@ -142,7 +142,7 @@ class Store01 {
                         commit(Constants.M_CLEARDATA, { path });
                     })
                 }*/
-                await service.doDelete(_this.getSaveParam());
+                await _this.service.doDelete(_this.getSaveParam());
                 commit(Constants.M_SETSTATE);
             },
             async saveSubmit({ commit }) {

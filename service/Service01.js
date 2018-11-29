@@ -24,7 +24,7 @@ export const doAdd = async function(param) {
 }
 
 export const doDelete = async function(param) {
-    param["TP"] = "save";
+    param["TP"] = "delete";
     return doCall(param);
 }
 
