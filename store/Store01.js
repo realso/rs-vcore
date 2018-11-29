@@ -133,7 +133,7 @@ class Store01 {
                 commit(Constants.M_SETSTATE);
             },
             async delete() {
-                //假删除
+                /*全部在后台处理
                 if ("1" == _this.ISFDEL) {
                     _this.getTable(_this.mainPath).setValue(_this.DELFIELD, 1);
                 } else {
@@ -141,7 +141,7 @@ class Store01 {
                     _this.subPath.forEach(path => {
                         commit(Constants.M_CLEARDATA, { path });
                     })
-                }
+                }*/
                 await service.doDelete(_this.getSaveParam());
                 commit(Constants.M_SETSTATE);
             },
