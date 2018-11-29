@@ -5,7 +5,7 @@ export const setDB = function(tdb) {
 }
 
 export const doCall = async function(param) {
-    const api = { "namespace": "GJ.EBZ.P00", "class": "CM01", "method": "onAction", params: [param] };
+    const api = { "namespace": "GJ.EBZ.P00", "class": "CM01", "method": "onAction", params: [param], ISCHECKREPEAT: true };
     return db.call(api).then((ret) => {
         if (ret.data.ERRCODE) {
             return new Promise(function(resolve, reject) {
@@ -35,6 +35,7 @@ export const doOpen = async function(param) {
 
 export const doSave = async function(param) {
     param["TP"] = "save";
+    param["ISCHECKREPEAT"] = true;
     return doCall(param);
 }
 

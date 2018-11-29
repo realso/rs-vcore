@@ -1,4 +1,4 @@
-export const stringToDate = function(DateStr, format) {
+export const stringToDate = function(strDate, format) {
     try {
         var regEx = new RegExp("\\-", "gi");
         strDate = strDate.replace(regEx, "/");

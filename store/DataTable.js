@@ -148,16 +148,26 @@ class DataTable {
         })
     }
 
-    del(index) {
-        index = index || 0;
+    del(idxOrItem) {
+        let index = idxOrItem || 0;
+        if (typeof(idxOrItem) == "object") {
+            index = this.data.indexOf(idxOrItem);
+        }
         if (index < 0 && index > this.data.length) {
             throw new Error("DataTable.del:index不正确");
         }
         let item = this.data.splice(index, 1)[0];
         if (item["_type_"] == "new") {
-            delete this._changeInfo._rawIdxData[item["_idx_"]];
+            delete this._changeInfo._addIdxRows[item["_idx_"]];
         } else {
             this._changeInfo._deleteIdxRows[item["_idx_"]] = item;
+        }
+    }
+
+    clear() {
+        for (let i = this.data.length - 1, item; i >= 0; i--) {
+            item = this.data[i];
+            this.del(item);
         }
     }
 
@@ -271,7 +281,7 @@ class DataTable {
             let item = this._changeInfo._deleteIdxRows[idx];
             let delitem = "";
             let titem = this._changeInfo._rawIdxData[idx];
-            fieldAll.forEach(field => {
+            fieldAll.forEach((field, i) => {
                 delitem = delitem + " oc" + i + '="' + encodeURIComponent(this._filterValue(titem[field])) + '"';
             });
             delitems = delitems + "<r" + delitem + "/>";
