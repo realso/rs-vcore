@@ -2,6 +2,7 @@ import { DataTable } from "./DataTable";
 
 const Constants = {
     "M_INITDATA": "initData",
+    "M_CLEARDATA": "clearData",
     "M_INITBYPATH": "initByPath",
     "M_BATCHSETDATA": "batchSetData",
     "M_SETVALUE": "setValue",
@@ -17,6 +18,7 @@ const Constants = {
     "P_EMPFIELD": "MKEMPID",
     "P_MAKEFIELD": "MAKERID",
     "P_STATECODE": "STATE.PARACODE",
+    "P_DELFIELD": "ISDEL",
     "STORE_NAME": "STORE_NAME",
     "DT": "dt"
 }
@@ -39,11 +41,14 @@ class Store01 {
         this.extPath = config.EXTPATH || [];
 
         //放在这感觉很鸡肋
+        this.ISFDEL = config.ISFDEL;
         this.XULID = config.XULID;
         this.OPRTFLOWID = config.OPRTFLOWID;
         this.AUTOCHECK = config.AUTOCHECK;
         this.EMPFIELD = config.EMPFIELD || Constants.P_EMPFIELD;
         this.MAKEFIELD = config.MAKEFIELD || Constants.P_MAKEFIELD;
+        this.DELFIELD = config.DELFIELD || Constants.P_DELFIELD;
+        this.STATECODE = config.STATECODE || Constants.P_STATECODE;
     }
 
     getTable(path) {
@@ -128,6 +133,15 @@ class Store01 {
                 commit(Constants.M_SETSTATE);
             },
             async delete() {
+                //假删除
+                if ("1" == _this.ISFDEL) {
+                    _this.getTable(_this.mainPath).setValue(_this.DELFIELD, 1);
+                } else {
+                    commit(Constants.M_CLEARDATA, { path: _this.mainPath });
+                    _this.subPath.forEach(path => {
+                        commit(Constants.M_CLEARDATA, { path });
+                    })
+                }
                 await service.doDelete(_this.getSaveParam());
                 commit(Constants.M_SETSTATE);
             },
@@ -176,6 +190,9 @@ class Store01 {
             [Constants.M_INITDATA]: function(state, { path, data }) {
                 state[Constants.DT][path].initData(data);
             },
+            [Constants.M_CLEARDATA]: function(state, { path }) {
+                state[Constants.DT][path].clear(data);
+            },
             [Constants.M_SETVALUE]: function(state, { path, field, value, idx }) {
                 state[Constants.DT][path].setValue(field, value, idx);
             },
@@ -206,7 +223,7 @@ class Store01 {
             },
             [Constants.M_SETSTATE]: function(state, STATE) {
                 let MAIN = _this.getTable(_this.mainPath);
-                STATE = STATE || MAIN.getValue("STATE.PARACODE") || (MAIN.isAdd() ? "Add" : "");
+                STATE = STATE || MAIN.getValue(_this.STATECODE) || (MAIN.isAdd() ? "Add" : "");
                 if ("Add" != STATE) {
                     if (STATE) {
                         state.STATE = STATE;
