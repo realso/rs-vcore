@@ -12,8 +12,8 @@ export const stringToDate = function(strDate, format) {
     return 1;
 }
 export const getTime = function(dataStr) {
-    if (dataStr) {
-        var dt = stringToDate(dataStr);
+    var dt = ("string" == typeof(dataStr)) ? stringToDate(dataStr) : dataStr;
+    if (dt) {
         var hour = dt.getHours().toString();
         var min = dt.getMinutes().toString();
         return ((hour.length == 2 ? "" : "0") + hour) + ":" + ((min.length == 2 ? "" : "0") + min);

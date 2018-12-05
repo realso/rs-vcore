@@ -55,6 +55,17 @@ class Store01 {
         return this[Constants.DT][path];
     }
 
+    setConfig({ XULID, OPRTFLOWID, AUTOCHECK, EMPFIELD, MAKEFIELD, STATECODE, DELFIELD }) {
+        let _this = this;
+        _this.XULID = XULID || _this.XULID;
+        _this.OPRTFLOWID = OPRTFLOWID || _this.OPRTFLOWID;
+        _this.AUTOCHECK = AUTOCHECK || _this.AUTOCHECK;;
+        _this.EMPFIELD = EMPFIELD || _this.EMPFIELD || Constants.P_EMPFIELD;
+        _this.MAKEFIELD = MAKEFIELD || _this.MAKEFIELD || Constants.P_MAKEFIELD;
+        _this.DELFIELD = DELFIELD || _this.DELFIELD || Constants.P_DELFIELD;
+        _this.STATECODE = STATECODE || _this.STATECODE || Constants.P_STATECODE;
+    }
+
     getOpenParam(DID) {
         let param = {},
             path = {},
