@@ -9,23 +9,23 @@ export const doGetBillCode = async function({ AID, AUID, BILLTYPEID, BUSTYPEID, 
         "namespace": "GJ.EBZ.COM",
         "class": "BusiCom",
         "method": "GetBillCode",
-        params: [AID, AUID, NOTYPEID || "10205", BILLTYPEID, BUSTYPEID || 'NULL', `to_date('${BILLDATE}','yyyy-mm-dd')`, "0", "0", "0", "0"]
+        params: [AID, AUID, NOTYPEID || "10205", BILLTYPEID + '', BUSTYPEID + '' || 'NULL', `to_date('${BILLDATE}','yyyy-mm-dd')`, "0", "0", "0", "0"]
     })
 }
 
 export const doGetDateTime = async function() {
     var param = { tp: "getdatetime" };
-    return postData(param)
+    return db.postData(param)
 }
 
 export const doGetDate = async function() {
     var param = { tp: "getdate" };
-    return postData(param)
+    return db.postData(param)
 }
 
 export const doGetNewID = async function(scmName, inc) {
     var param = { tp: "getid", modalName: scmName, col: inc };
-    return postData(param)
+    return db.postData(param)
 }
 
 export const doGetPeriod = async function({ PTYPE, BILLDATE, ACCOUNTTYPE }) {

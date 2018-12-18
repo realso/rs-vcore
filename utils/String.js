@@ -25,3 +25,7 @@ export const isNull = function(value) {
 export const isNumber = function(value) {
     return parseFloat(value) == value;
 }
+
+export const toNumber = function(value) {
+    return !isNumber(value) ? 0 : parseFloat(value);
+}
