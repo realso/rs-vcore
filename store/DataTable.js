@@ -15,6 +15,7 @@ class DataTable {
             _modifyIdxRows: {},
             _deleteIdxRows: {}
         }
+        this.__backdata = null;
     }
 
     /**
@@ -302,6 +303,44 @@ class DataTable {
 
     isAdd() {
         return Object.keys(this._changeInfo._addIdxRows).length > 0
+    }
+
+    //备份数据
+    backup() {
+        let cache = [];
+        let data = this._deepCopy(this.data, cache);
+        let _changeInfo = this._deepCopy(this._changeInfo, cache);
+        let idx = this.idx;
+        this.__backdata = { data, _changeInfo, idx };
+    }
+
+    //恢复数据
+    recovery() {
+        if (this.__backdata) {
+            Object.assign(this, this.__backdata);
+            this.__backdata = null;
+        }
+    }
+    _deepCopy(obj, cache = []) {
+        // just return if obj is immutable value
+        if (obj === null || typeof obj !== 'object') return obj;
+        // if obj is hit, it is in circular structure
+        const hit = cache.find(c => c.original === obj);
+        if (hit) return hit.copy;
+        const copy = Array.isArray(obj) ? [] : {};
+        // put the copy into cache at first
+        // because we want to refer it in recursive deepCopy
+        cache.push({
+            original: obj,
+            copy,
+        });
+        Object.keys(obj).forEach(key => {
+            if (key.indexOf('__') == 0) {
+                return;
+            }
+            copy[key] = this._deepCopy(obj[key], cache);
+        });
+        return copy;
     }
 }
 export {
