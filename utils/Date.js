@@ -24,7 +24,7 @@ export const datePart = function(dataStr, interval) {
     try {
         var partStr = "";
         //如果是字符串转换为日期型
-        if (typeof dataStr == 'string') myDate = stringToDate(dataStr);
+        if (typeof dataStr == 'string') var myDate = stringToDate(dataStr);
         var Week = ['日', '一', '二', '三', '四', '五', '六'];
         switch (interval) {
             case 'y':
