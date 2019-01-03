@@ -31,7 +31,11 @@ class BaseStore {
         let dt = {};
         if (this.paths) {
             Object.keys(this.paths).forEach(path => {
-                dt[path] = new DataTable(path, this.paths[path]);
+                if(typeof(this.paths[path])=="object"){
+                    dt[path] = this.paths[path];
+                }else{
+                    dt[path] = new DataTable(path, this.paths[path]);
+                }
             })
         }
         this.dt = dt;

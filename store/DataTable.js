@@ -36,6 +36,7 @@ class DataTable {
         data.map(item => {
             item["_idx_"] = this.idx++;
             item["_type_"] = "old";
+            item["_path_"] = this.path;
             this._changeInfo._rawIdxData[item["_idx_"]] = item;
             this.data.push(Object.assign({}, this.dataObj, item));
         })
@@ -82,6 +83,8 @@ class DataTable {
         return ret;
     }
 
+    
+
     setValue(field, value, idxOrItem) {
 
         value = this._filterValue(value);
@@ -93,7 +96,7 @@ class DataTable {
                 this.add(item);
             }
             if (idx > this.data.length) {
-                throw new Error("DataTable.getValue太长了");
+                throw new Error("DataTable.setValue太长了");
             } else {
                 item = this.data[idx];
             }
@@ -129,17 +132,28 @@ class DataTable {
         this.update(item, Object.keys(titem));
     }
 
+    getRawItem(item, fields){
+        fields = fields || this.getFields(true);
+        let titem={};
+        item=item||this.data[0];
+        fields.map(f=>{
+            titem[f] = item[f];
+        });
+        return titem;
+    }
+
     add(item) {
         item = Object.assign({}, this.dataObj, item);
         this.data.push(item);
         item["_idx_"] = this.idx++;
         item["_type_"] = "new";
+        item["_path_"] = this.path;
         this._changeInfo._addIdxRows[item["_idx_"]] = item;
     }
 
     update(item, fields) {
         const titem = this._changeInfo._rawIdxData[item["_idx_"]];
-        fields = fields || Object.keys(fields);
+        fields = fields || Object.keys(item);
         fields.forEach(field => {
             if (titem && Object.keys(titem).includes(field)) {
                 if (titem[field] != item[field]) {
@@ -213,7 +227,40 @@ class DataTable {
         });
     }
 
-    getFields() {
+    down({item,items}){
+        items = items||this.data;
+        let cidx = -2;
+        items.forEach((titem, index) => {
+            if (titem==item) {
+                cidx = index;
+            }
+        });
+        return items[cidx + 1];
+    }
+
+    up({item,items}){
+        items = items||this.data;
+        let cidx = -2;
+        items.forEach((titem, index) => {
+            if (titem==item) {
+                cidx = index;
+            }
+        });
+        return items[cidx - 1];
+    }
+
+    first({items}){
+        items = items||this.data||[];
+        return items[0];
+    }
+
+    last({items}){
+        items = items||this.data||[];
+        return items[items.length-1];
+    }
+
+
+    getFields(hasRef) {
         let fieldAll = [];
         this.data.forEach(function(item) {
             fieldAll = fieldAll.concat(Object.keys(item));
@@ -224,7 +271,7 @@ class DataTable {
         fieldAll = Array.from(new Set(fieldAll));
         //乱七八糟的字段都要去掉
         fieldAll = fieldAll.filter((filed) => {
-            return filed.split('.').length < 2 && ["_idx_", "_type_"].indexOf(filed) == -1 // && filed.split('.')[0] != filed.split('.')[1]
+            return (filed.split('.').length < 2||hasRef===true) && ["_idx_", "_type_"].indexOf(filed) == -1 // && filed.split('.')[0] != filed.split('.')[1]
         })
         return fieldAll;
     }

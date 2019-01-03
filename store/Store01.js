@@ -51,7 +51,14 @@ class Store01 {
         this.STATECODE = config.STATECODE || Constants.P_STATECODE;
     }
 
-    getTable(path) {
+    getTable(pathOrItem) {
+        let path = pathOrItem;
+        if (typeof(pathOrItem) == "object") {
+            path =pathOrItem["_path_"]; 
+        }
+        if(!path){
+            throw new Error("getTable：参数不合法",pathOrItem);
+        }
         return this[Constants.DT][path];
     }
 
@@ -109,13 +116,18 @@ class Store01 {
         let dt = {};
         if (this.paths) {
             Object.keys(this.paths).forEach(path => {
-                dt[path] = new DataTable(path, this.paths[path]);
+                if(typeof(this.paths[path])=="object"){
+                    dt[path] = this.paths[path];
+                }else{
+                    dt[path] = new DataTable(path, this.paths[path]);
+                }
             })
         }
         this.dt = dt;
         return {
             dt,
-            STATE: "Null"
+            STATE: "Null",
+            ISNOTME: false
         }
     }
 
@@ -175,7 +187,7 @@ class Store01 {
                 commit(Constants.M_SETSTATE);
             },
             async reCheck({ commit }) {
-                const ret = await _this.service.doReInvalid(_this.getSaveParam());
+                const ret = await _this.service.doReCheck(_this.getSaveParam());
                 const data = (ret.data || {});
                 commit(Constants.M_BATCHSETDATA, { data });
                 commit(Constants.M_SETSTATE);
@@ -235,6 +247,7 @@ class Store01 {
             [Constants.M_SETSTATE]: function(state, STATE) {
                 let MAIN = _this.getTable(_this.mainPath);
                 STATE = STATE || MAIN.getValue(_this.STATECODE) || (MAIN.isAdd() ? "Add" : "");
+                state.ISNOTME = false;
                 if ("Add" != STATE) {
                     if (STATE) {
                         state.STATE = STATE;
@@ -243,7 +256,7 @@ class Store01 {
                     }
                     //处理notme
                     if (!(this.getters.userInfo.EMPID == MAIN.getValue(_this.EMPFIELD) || this.getters.userInfo.AUID == MAIN.getValue(_this.MAKEFIELD))) {
-                        state.STATE = "NotMe";
+                        state.ISNOTME = true;
                     }
                 } else {
                     state.STATE = STATE;
