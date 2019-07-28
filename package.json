@@ -1,15 +1,15 @@
 {
-    "name": "rs-vcore",
-    "version": "0.0.48",
-    "description": "锐速软件核心库",
-    "main": "index.js",
-    "scripts": {},
-    "keywords": [
-        "锐速软件",
-        "realso"
-    ],
-    "author": "ggtiger",
-    "license": "MIT",
-    "devDependencies": {},
-    "dependencies": {}
+  "name": "rs-vcore",
+  "version": "0.0.49",
+  "description": "锐速软件核心库",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "锐速软件",
+    "realso"
+  ],
+  "author": "ggtiger",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {}
 }

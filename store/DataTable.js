@@ -83,7 +83,7 @@ class DataTable {
         return ret;
     }
 
-    
+
 
     setValue(field, value, idxOrItem) {
 
@@ -132,11 +132,11 @@ class DataTable {
         this.update(item, Object.keys(titem));
     }
 
-    getRawItem(item, fields){
+    getRawItem(item, fields) {
         fields = fields || this.getFields(true);
-        let titem={};
-        item=item||this.data[0];
-        fields.map(f=>{
+        let titem = {};
+        item = item || this.data[0];
+        fields.map(f => {
             titem[f] = item[f];
         });
         return titem;
@@ -227,36 +227,54 @@ class DataTable {
         });
     }
 
-    down({item,items}){
-        items = items||this.data;
+    down({ item, items }) {
+        items = items || this.data;
         let cidx = -2;
         items.forEach((titem, index) => {
-            if (titem==item) {
+            if (titem == item) {
                 cidx = index;
             }
         });
         return items[cidx + 1];
     }
 
-    up({item,items}){
-        items = items||this.data;
+    up({ item, items }) {
+        items = items || this.data;
         let cidx = -2;
         items.forEach((titem, index) => {
-            if (titem==item) {
+            if (titem == item) {
                 cidx = index;
             }
         });
         return items[cidx - 1];
     }
 
-    first({items}){
-        items = items||this.data||[];
+    upItem({ item, items }) {
+        items = items || this.data;
+        let titem = this.up({ item, items });
+        if (titem) {
+            let fidx = items.indexOf(item);
+            items[fidx] = items.splice(fidx - 1, 1, items[fidx])[0];
+        }
+    }
+
+    downItem({ item, items }) {
+        items = items || this.data;
+        let titem = this.down({ item, items });
+        if (titem) {
+            let fidx = items.indexOf(item);
+            items[fidx] = items.splice(fidx + 1, 1, items[fidx])[0];
+        }
+    }
+
+    first({ items }) {
+        items = items || this.data || [];
         return items[0];
     }
 
-    last({items}){
-        items = items||this.data||[];
-        return items[items.length-1];
+    last({ items }) {
+        items = items || this.data || [];
+        return items[items.length - 1];
     }
 
 
@@ -271,7 +289,7 @@ class DataTable {
         fieldAll = Array.from(new Set(fieldAll));
         //乱七八糟的字段都要去掉
         fieldAll = fieldAll.filter((filed) => {
-            return (filed.split('.').length < 2||hasRef===true) && ["_idx_", "_type_"].indexOf(filed) == -1 // && filed.split('.')[0] != filed.split('.')[1]
+            return (filed.split('.').length < 2 || hasRef === true) && ["_idx_", "_type_"].indexOf(filed) == -1 // && filed.split('.')[0] != filed.split('.')[1]
         })
         return fieldAll;
     }

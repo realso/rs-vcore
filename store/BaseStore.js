@@ -31,9 +31,9 @@ class BaseStore {
         let dt = {};
         if (this.paths) {
             Object.keys(this.paths).forEach(path => {
-                if(typeof(this.paths[path])=="object"){
+                if (typeof(this.paths[path]) == "object") {
                     dt[path] = this.paths[path];
-                }else{
+                } else {
                     dt[path] = new DataTable(path, this.paths[path]);
                 }
             })
@@ -102,6 +102,7 @@ class BaseStore {
         ret[path] = function() {
             return dt.data;
         };
+        ret["$" + path] = function() { return dt };
         return ret;
     }
 }
